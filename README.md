@@ -16,6 +16,8 @@ The Alpha sensor kit uses 2x DHT22 Temperature and Humidity sensors and 2x DS18B
 * (1) DHT22 sensor is used for monitoring outdoor Temperature and Humidity
 * (1) DHT22 sensor is used for monitoring hive Temperature and Humidity
 * (2) DS18B20 sensors are for monitoring Temperatures in other locations inside the beehive.
+* (2) 1k Ohms 5% resistor 1/4 watt
+* (1) 4.7k Ohm 5% resistor 1/4 watt
 
 Data is collected every ten minutes and reported to a internet server running the SparkFun Phant database.
 
