@@ -22,8 +22,8 @@
 #ifndef DHT_U_H
 #define DHT_U_H
 
-#include <Adafruit_Sensor.h>
-#include <DHT.h>
+#include "Adafruit_Sensor.h"
+#include "DHT.h"
 
 #define DHT_SENSOR_VERSION 1
 
@@ -56,11 +56,13 @@ public:
 
   };
 
-  Temperature temperature() {
+  // modified original library to return reference instead of value, to avoid unnecessary copying
+  Temperature& temperature() {
     return _temp;
   }
 
-  Humidity humidity() {
+  // modified original library to return reference instead of value, to avoid unnecessary copying
+  Humidity& humidity() {
     return _humidity;
   }
 
