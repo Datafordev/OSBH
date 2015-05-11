@@ -12,5 +12,5 @@ libraries/DHT_U.cpp
 
 libraries/OneWire.h
 libraries/OneWire.cpp
-libraries/DSX.h
-libraries/DSX.cpp
+libraries/DSX_U.h
+libraries/DSX_U.cpp

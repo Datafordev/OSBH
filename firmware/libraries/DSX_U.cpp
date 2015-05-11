@@ -4,7 +4,6 @@
  *  Adaption of Adafruit Unified driver to Spark and DS OneWire sensors
  *
  *  Adapted by Scott Piette (Piette Technologies, LTD)
- *  Copyright (c) 2014 Scott Piette (scott.piette@gmail.com)
  *  Developed for the Open Source Beehives Project
  *       (http://www.opensourcebeehives.net)
  *
@@ -21,14 +20,14 @@
  *
  */
 
-#include "PietteTech_DSX_U.h"
+#include "DSX_U.h"
 
 /**************************************************************************/
 /*!
- @brief  Instantiates a new PietteTech_DSX_U class
+ @brief  Instantiates a new DSX_U class
  */
 /**************************************************************************/
-PietteTech_DSX_U::PietteTech_DSX_U() {}
+DSX_Unified::DSX_Unified() {}
 
 /***************************************************************************
  PUBLIC FUNCTIONS
@@ -39,7 +38,7 @@ PietteTech_DSX_U::PietteTech_DSX_U() {}
  @brief  Setups the HW
  */
 /**************************************************************************/
-void PietteTech_DSX_U::begin(uint8_t *addr, OneWire *one, int32_t sensorId, char *sensorName)
+void DSX_Unified::begin(uint8_t *addr, OneWire *one, int32_t sensorId, char *sensorName)
 {
     memcpy(&_addr[0], addr, 8);
     _one = one;
@@ -56,7 +55,7 @@ void PietteTech_DSX_U::begin(uint8_t *addr, OneWire *one, int32_t sensorId, char
  @brief  Reads the temperatures in degrees Celsius
  */
 /**************************************************************************/
-float PietteTech_DSX_U::getTemperature()
+float DSX_Unified::getTemperature()
 {
     // If the sensor type is unknown return
     if (_addr[0] == -1)
@@ -111,7 +110,7 @@ float PietteTech_DSX_U::getTemperature()
  @brief  Populates the sensor_t name for this sensor
  */
 /**************************************************************************/
-void PietteTech_DSX_U::setName(sensor_t* sensor) {
+void DSX_Unified::setName(sensor_t* sensor) {
     if (_name) {
         strncpy(sensor->name, _name, sizeof(sensor->name) - 1);
     } else {
@@ -143,7 +142,7 @@ void PietteTech_DSX_U::setName(sensor_t* sensor) {
  @brief  Populates the sensor_t name for this sensor
  */
 /**************************************************************************/
-void PietteTech_DSX_U::setMinDelay(sensor_t* sensor) {
+void DSX_Unified::setMinDelay(sensor_t* sensor) {
     switch(_addr[0]) {
         case DS18S20:
             sensor->min_delay = 1000000L;  // 1 second (in microseconds)
@@ -169,7 +168,7 @@ void PietteTech_DSX_U::setMinDelay(sensor_t* sensor) {
  @brief  Provides the sensor_t data for this sensor
  */
 /**************************************************************************/
-void PietteTech_DSX_U::getSensor(sensor_t *sensor)
+void DSX_Unified::getSensor(sensor_t *sensor)
 {
     /* Clear the sensor_t object */
     memset(sensor, 0, sizeof(sensor_t));
@@ -217,7 +216,7 @@ void PietteTech_DSX_U::getSensor(sensor_t *sensor)
  @brief  Reads the sensor and returns the data as a sensors_event_t
  */
 /**************************************************************************/
-void PietteTech_DSX_U::getEvent(sensors_event_t *event)
+bool DSX_Unified::getEvent(sensors_event_t *event)
 {
     // Clear event definition.
     memset(event, 0, sizeof(sensors_event_t));
@@ -227,4 +226,5 @@ void PietteTech_DSX_U::getEvent(sensors_event_t *event)
     event->type        = SENSOR_TYPE_AMBIENT_TEMPERATURE;
     event->timestamp   = millis();
     event->temperature = getTemperature();
+    return true;
 }

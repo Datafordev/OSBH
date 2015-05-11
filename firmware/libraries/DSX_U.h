@@ -21,10 +21,10 @@
  *
  */
 
-#ifndef __PIETTETECH_DSX_H__
-#define __PIETTETECH_DSX_H__
+#ifndef __DSX_H__
+#define __DSX_H__
 
-#include "PietteTech_Sensor.h"
+#include "Adafruit_Sensor.h"
 #include "OneWire.h"
 
 /*=========================================================================
@@ -68,14 +68,14 @@ enum
 };
 /*=========================================================================*/
 
-class PietteTech_DSX_U : public PietteTech_Sensor
+class DSX_Unified : public Adafruit_Sensor
 {
 public:
-    PietteTech_DSX_U();
+    DSX_Unified();
     
     void  begin(uint8_t *addr, OneWire *one, int32_t sensorId = -1, char *sensorName = NULL);
     float getTemperature();
-    void  getEvent(sensors_event_t*);
+    bool  getEvent(sensors_event_t*);
     void  getSensor(sensor_t*);
     
 private:
