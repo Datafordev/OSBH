@@ -17,12 +17,16 @@
 #endif
 
 
-/* Pin definitions */
-#define ONE_WIRE_PIN 3
+/* Pin and sensor definitions */
+#define ONE_WIRE_PIN   3
+#define DHT_CNT        2
+#define DHT_PIN        4         // Pin for internal DHT sensor.
+#define DHTB_PIN       5         // Pin for external DHT sensor.
+#define DHT_TYPE       DHT22     // DHT 22 (AM2302)
 
 
 /* Configuration variables */
-#define READ_INTERVAL 1000
+#define IDEAL_READ_INTERVAL 5000 // may be adjusted upward to match sensors' min_delays
 
 
 /* Constants */

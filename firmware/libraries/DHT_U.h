@@ -56,14 +56,14 @@ public:
 
   };
 
-  // modified original library to return reference instead of value, to avoid unnecessary copying
-  Temperature& temperature() {
-    return _temp;
+  // modified original library to return pointer instead of value, to avoid unnecessary copying
+  Temperature* temperature() {
+    return &_temp;
   }
 
-  // modified original library to return reference instead of value, to avoid unnecessary copying
-  Humidity& humidity() {
-    return _humidity;
+  // modified original library to return pointer instead of value, to avoid unnecessary copying
+  Humidity* humidity() {
+    return &_humidity;
   }
 
 private:
