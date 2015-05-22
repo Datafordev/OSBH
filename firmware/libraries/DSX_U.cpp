@@ -3,31 +3,93 @@
  *
  *  Adaption of Adafruit Unified driver to Spark and DS OneWire sensors
  *
- *  Adapted by Scott Piette (Piette Technologies, LTD)
+ *  DSX_Sensor code based off PietteTech_DSX_U class, which is 
+ *  copyright (c) 2014 Scott Piette (scott.piette@gmail.com)
+ *
  *  Developed for the Open Source Beehives Project
  *       (http://www.opensourcebeehives.net)
  *
  *  This adaptation is released under the following license:
  *	GPL v3 (http://www.gnu.org/licenses/gpl.html)
  *
- *  October 3, 2014
- * 	Added support for naming each sensor object
- * 	Set name in setType method for identifying sensor
- *
- * 	Use same low level OneWire driver for multiple objects
- * 	 - for example one pin can have multiple Temperature sensors
- *	This improves usability of Unified library
- *
  */
 
 #include "DSX_U.h"
 
+
+
+/*=========================================================================
+ SENSOR TYPES
+ -----------------------------------------------------------------------*/
+enum
+{
+    DS18S20             = 0x10,
+    DS18B20             = 0x28,
+    DS1822              = 0x22,
+    DS2438              = 0x26
+};
+/*=========================================================================*/
+
+/*=========================================================================
+ ONE WIRE COMMANDS
+ -----------------------------------------------------------------------*/
+enum
+{
+    DSX_CMD_STARTCONVERSION         = 0x44,
+    DSX_CMD_READSCRATCHPAD          = 0xBE
+};
+/*=========================================================================*/
+
+
 /**************************************************************************/
 /*!
- @brief  Instantiates a new DSX_U class
+ @brief  Function definitions for DSX_Unified wrapper class
  */
 /**************************************************************************/
-DSX_Unified::DSX_Unified() {}
+DSX_Unified::DSX_Unified(uint8_t oneWirePin) 
+    : _one(oneWirePin), _children({nullptr}), _children_cnt(0)
+{}
+
+void DSX_Unified::prepare(uint8_t starting_sensor_id)
+{
+    if (_children_cnt) return;
+
+    uint8_t address[8];
+    uint8_t i = 0;
+    while (_one.search(address) && i < MAX_SENSORS) {
+        if (OneWire::crc8(address, 7) == address[7]) {
+            _children[i++] = new DSX_Sensor(address, &_one, starting_sensor_id++, nullptr);
+        }
+    }
+    _children_cnt = i;
+}
+
+DSX_Unified::~DSX_Unified()
+{
+    for (uint8_t i = 0; i < _children_cnt; ++i)
+        delete _children[i];
+}
+
+
+
+
+
+/**************************************************************************/
+/*!
+ @brief  Instantiates a new DSX_Sensor class
+ */
+/**************************************************************************/
+DSX_Sensor::DSX_Sensor(uint8_t addr[8], OneWire *one, int32_t sensorId, char *sensorName) 
+    : _one(one), _sensorID(sensorId)
+{
+    memcpy(&_addr[0], addr, 8);
+    if (sensorName) {
+        strncpy(_name, sensorName, sizeof(_name) - 1);
+        _name[sizeof(_name)- 1] = '\0';
+    } else {
+        setDefaultName();
+    }
+}
 
 /***************************************************************************
  PUBLIC FUNCTIONS
@@ -35,27 +97,10 @@ DSX_Unified::DSX_Unified() {}
 
 /**************************************************************************/
 /*!
- @brief  Setups the HW
- */
-/**************************************************************************/
-void DSX_Unified::begin(uint8_t *addr, OneWire *one, int32_t sensorId, char *sensorName)
-{
-    memcpy(&_addr[0], addr, 8);
-    _one = one;
-    _sensorID = sensorId;
-
-    if (sensorName) {
-        strncpy(_name, sensorName, sizeof(_name) - 1);
-        _name[sizeof(_name)- 1] = 0;
-    }
-}
-
-/**************************************************************************/
-/*!
  @brief  Reads the temperatures in degrees Celsius
  */
 /**************************************************************************/
-float DSX_Unified::getTemperature()
+float DSX_Sensor::getTemperature()
 {
     // If the sensor type is unknown return
     if (_addr[0] == -1)
@@ -110,31 +155,27 @@ float DSX_Unified::getTemperature()
  @brief  Populates the sensor_t name for this sensor
  */
 /**************************************************************************/
-void DSX_Unified::setName(sensor_t* sensor) {
-    if (_name) {
-        strncpy(sensor->name, _name, sizeof(sensor->name) - 1);
-    } else {
-        switch(_addr[0]) {
-            case DS18S20:
-                strncpy(sensor->name, "DS18S20", sizeof(sensor->name) - 1);
-                break;
-            case DS18B20:
-                strncpy(sensor->name, "DS18B20", sizeof(sensor->name) - 1);
-                break;
-            case DS1822:
-                strncpy(sensor->name, "DS1822", sizeof(sensor->name) - 1);
-                break;
-            case DS2438:
-                strncpy(sensor->name, "DS2438", sizeof(sensor->name) - 1);
-                break;
-            default:
-                // TODO: Perhaps this should be an error?  However main DHT library doesn't enforce
-                // restrictions on the sensor type value.  Pick a generic name for now.
-                strncpy(sensor->name, "DSX?", sizeof(sensor->name) - 1);
-                break;
-        }
+void DSX_Sensor::setDefaultName() {
+    switch(_addr[0]) {
+        case DS18S20:
+            strncpy(_name, "DS18S20", sizeof(_name) - 1);
+            break;
+        case DS18B20:
+            strncpy(_name, "DS18B20", sizeof(_name) - 1);
+            break;
+        case DS1822:
+            strncpy(_name, "DS1822", sizeof(_name) - 1);
+            break;
+        case DS2438:
+            strncpy(_name, "DS2438", sizeof(_name) - 1);
+            break;
+        default:
+            // TODO: Perhaps this should be an error?  However main DHT library doesn't enforce
+            // restrictions on the sensor type value.  Pick a generic name for now.
+            strncpy(_name, "DSX?", sizeof(_name) - 1);
+            break;
     }
-    sensor->name[sizeof(sensor->name)- 1] = 0;
+    _name[sizeof(_name)- 1] = 0;
 }
 
 /**************************************************************************/
@@ -142,7 +183,7 @@ void DSX_Unified::setName(sensor_t* sensor) {
  @brief  Populates the sensor_t name for this sensor
  */
 /**************************************************************************/
-void DSX_Unified::setMinDelay(sensor_t* sensor) {
+void DSX_Sensor::setMinDelay(sensor_t* sensor) {
     switch(_addr[0]) {
         case DS18S20:
             sensor->min_delay = 1000000L;  // 1 second (in microseconds)
@@ -168,13 +209,13 @@ void DSX_Unified::setMinDelay(sensor_t* sensor) {
  @brief  Provides the sensor_t data for this sensor
  */
 /**************************************************************************/
-void DSX_Unified::getSensor(sensor_t *sensor)
+void DSX_Sensor::getSensor(sensor_t *sensor)
 {
     /* Clear the sensor_t object */
     memset(sensor, 0, sizeof(sensor_t));
     
     // Set sensor name.
-    setName(sensor);
+    strncpy(sensor->name, _name, sizeof(sensor->name) - 1);
     // Set version and ID
     sensor->version     = 1;
     sensor->sensor_id   = _sensorID;
@@ -216,7 +257,7 @@ void DSX_Unified::getSensor(sensor_t *sensor)
  @brief  Reads the sensor and returns the data as a sensors_event_t
  */
 /**************************************************************************/
-bool DSX_Unified::getEvent(sensors_event_t *event)
+bool DSX_Sensor::getEvent(sensors_event_t *event)
 {
     // Clear event definition.
     memset(event, 0, sizeof(sensors_event_t));
