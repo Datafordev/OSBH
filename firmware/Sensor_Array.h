@@ -13,31 +13,37 @@ namespace OSBH {
 class Sensor_Array
 {
 public:
-    // maximum number of sensors, assuming two DHT sensors
-    // TODO: modify this class to accept a variable number of DHT sensors
-    static const uint8_t MAX_SENSOR_CNT = DSX_Unified::MAX_SENSORS + 4;
-
     // Construct individual sensor objects, but don't yet initialize the array
     Sensor_Array(uint8_t one_wire_pin, uint8_t dht_pin1, uint8_t dht_pin2, uint8_t dht_type);
 
-    // Initialize the array
+    // Initialize the array. Call this before calling any of the methods below.
     void begin();
 
-    // Array of sensor pointers. Call begin() before accessing this.
-    Adafruit_Sensor** array() { return _sensors; }
+    // Get sensor or event data from a senser in the array
+    bool getEvent(uint8_t index, sensors_event_t* event);
+    bool getSensor(uint8_t index, sensor_t* sensor);
 
-    // The longest min_delay for all the sensors in the array.
-    // Call begin() before accessing this.
-    int32_t min_delay() const { return _min_delay; }
+    // The number of sensors in the array
+    uint8_t count() const { return _sensor_cnt; }
+
+    // The longest min_delay, in milliseconds, for all the sensors in the array.
+    uint32_t minDelay() const { return _min_delay; }
 
 private:
-    DSX_Unified _dsx;
-    DHT_Unified _dht;
-    DHT_Unified _dht2;
-    Adafruit_Sensor* _sensors[8];
-    int32_t _min_delay;
+    // dht objects, each representing one temp and one humidity sensor
+    static const uint8_t DHT_CNT = 2;
+    DHT_Unified _dht[DHT_CNT];
 
-    void setMinDelay();
+    // this object can represent multiple DSX* sensors on the same onewire bus
+    DSX_Unified _dsx;
+
+    // array of Adafruit_sensor* pointers
+    Adafruit_Sensor* _sensors[DSX_Unified::MAX_SENSORS + DHT_CNT*2];
+    uint8_t _sensor_cnt;
+    bool isValidIndex(uint8_t index) const; // make sure index is in-bounds and non-null 
+
+    void setMinDelay(); // iterates sensor array and caches main delay
+    uint32_t _min_delay; // cached min delay in milliseconds
 };
 
 }

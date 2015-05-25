@@ -47,27 +47,27 @@ enum
  */
 /**************************************************************************/
 DSX_Unified::DSX_Unified(uint8_t oneWirePin) 
-    : _one(oneWirePin), _children({nullptr}), _children_cnt(0)
+    : _one(oneWirePin), _sensors{nullptr}, _sensor_cnt(0)
 {}
 
 void DSX_Unified::prepare(uint8_t starting_sensor_id)
 {
-    if (_children_cnt) return;
+    if (_sensor_cnt) return;
 
     uint8_t address[8];
     uint8_t i = 0;
     while (_one.search(address) && i < MAX_SENSORS) {
         if (OneWire::crc8(address, 7) == address[7]) {
-            _children[i++] = new DSX_Sensor(address, &_one, starting_sensor_id++, nullptr);
+            _sensors[i++] = new DSX_Sensor(address, &_one, starting_sensor_id++, nullptr);
         }
     }
-    _children_cnt = i;
+    _sensor_cnt = i;
 }
 
 DSX_Unified::~DSX_Unified()
 {
-    for (uint8_t i = 0; i < _children_cnt; ++i)
-        delete _children[i];
+    for (uint8_t i = 0; i < _sensor_cnt; ++i)
+        delete _sensors[i];
 }
 
 

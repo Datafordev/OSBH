@@ -48,7 +48,7 @@ class DSX_Unified
 {
 public:
     static const uint8_t MAX_SENSORS = 4;
-    
+
     explicit DSX_Unified(uint8_t one_wire_pin);
     virtual ~DSX_Unified();
 
@@ -61,14 +61,17 @@ public:
     // guaranteed non-null.
     // All sensors in the array have the same lifetime as this parent
     // object, and should not be accessed after the parent is destroyed.
-    Adafruit_Sensor** sensorArray() { return _children; }
-    uint8_t children_cnt() { return _children_cnt; }
+    Adafruit_Sensor** sensors() { return _sensors; }
+    uint8_t count() { return _sensor_cnt; }
 
 private:
+    DSX_Unified(const DSX_Unified&) = delete;
+    DSX_Unified& operator=(const DSX_Unified&) = delete;
+
     OneWire _one;
 
-    Adafruit_Sensor* _children[MAX_SENSORS];
-    uint8_t _children_cnt;
+    Adafruit_Sensor* _sensors[MAX_SENSORS];
+    uint8_t _sensor_cnt;
 };
 
 #endif

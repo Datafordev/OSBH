@@ -8,11 +8,11 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 // global sensor array
 OSBH::Sensor_Array sensors(ONE_WIRE_PIN, DHT_PIN1, DHT_PIN2, DHT_TYPE);
 
-// actual read interval - may be modified from #defined READ_INTERVAL
-// depending on the min_delay values of the sensors.
-uint32_t read_interval = IDEAL_READ_INTERVAL;
-
-
+/**************************************************************************/
+/*
+        Function:  setup
+ */
+/**************************************************************************/
 void setup() 
 {
     Serial.begin(9600);
@@ -26,22 +26,23 @@ void setup()
     // initialize sensors
     sensors.begin();
 
-    // make sure our read interval respects our minimum sensor delays
-    int32_t min_delay = sensors.min_delay();
-    if (min_delay > 0 && min_delay > read_interval) {
-        read_interval = min_delay;
-    }
-
     DEBUG_PRINT("setup complete");
 }
 
-
+/**************************************************************************/
+/*
+        Function:  loop
+ */
+/**************************************************************************/
 void loop() 
 {
     // timing variables
     static uint32_t next_sync;
     static uint32_t next_read;
     const uint32_t now = millis();
+
+    // make sure our read interval respects our minimum sensor delays
+    static const uint32_t read_interval = max(IDEAL_READ_INTERVAL, sensors.minDelay());
 
     // time synchronization
     if (now > next_sync) {
@@ -57,13 +58,9 @@ void loop()
         // get sensor names and readings
         sensor_t sensor;
         sensors_event_t event;
-        Adafruit_Sensor** array = sensors.array();
-        for (uint8_t i = 0; i < OSBH::Sensor_Array::MAX_SENSOR_CNT; ++i) {
-            Adafruit_Sensor* s = array[i];
-            if (!s) continue;
-
-            s->getSensor(&sensor);
-            s->getEvent(&event);
+        for (uint8_t i = 0; i < sensors.count(); ++i) {
+            sensors.getSensor(i, &sensor);
+            sensors.getEvent(i, &event);
             DEBUG_PRINT(String(sensor.name) + " " + String(sensor.sensor_id) + ": " + String(event.data[0]));
         }
 
