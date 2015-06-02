@@ -1,4 +1,5 @@
 #include "util.h"
+#include "sd-card-library.h"
 
 
 bool OSBH::init_wifi(uint16_t timeout_ms)
@@ -27,4 +28,20 @@ void OSBH::sync_time(uint16_t timeout_ms)
             delay(100);
         }
     }
+}
+
+bool OSBH::write_line_to_sd(SDClass& sd, const String& line, const char* filename) {
+    if (File myFile = sd.open(filename, FILE_WRITE)) {
+        myFile.println(line);
+        myFile.close();
+        return true;
+    }
+    return false;
+}
+
+String OSBH::timestamp()
+{
+    String str = Time.timeStr();
+    str.trim(); // remove timeStr's trailing \n
+    return str;
 }

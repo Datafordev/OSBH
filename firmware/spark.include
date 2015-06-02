@@ -20,4 +20,18 @@ libraries/DSX.cpp
 libraries/DSX_U.h
 libraries/DSX_U.cpp
 
+libraries/SD/fat-structs.h
+libraries/SD/File.cpp           
+libraries/SD/sd2-card.h          
+libraries/SD/sd-fat.h          
+libraries/SD/sd-file.cpp          
+libraries/SD/sd2-card-config.h          
+libraries/SD/sd-card-library.cpp          
+libraries/SD/sd-fat-main-page.h          
+libraries/SD/sd-info.h          
+libraries/SD/sd2-card.cpp          
+libraries/SD/sd-card-library.h          
+libraries/SD/sd-fat-util.h          
+libraries/SD/sd-volume.cpp
+
 OSBH.ino

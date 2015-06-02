@@ -1,12 +1,16 @@
 #include "config.h"
 #include "util.h"
 #include "Sensor_Array.h"
+#include "sd-card-library.h"
 
 // disable wifi on boot
 SYSTEM_MODE(SEMI_AUTOMATIC);
 
 // global sensor array
 OSBH::Sensor_Array sensors(ONE_WIRE_PIN, DHT_PIN1, DHT_PIN2, DHT_TYPE);
+
+// whether an SD card is attached
+bool SD_attached = true;
 
 /**************************************************************************/
 /*
@@ -25,6 +29,12 @@ void setup()
 
     // initialize sensors
     sensors.begin();
+
+    // initialize SD card, if applicable
+    if(SD_attached && !SD.begin()) {
+        DEBUG_PRINT("could not initialize SD card");
+        SD_attached = false;
+    }
 
     DEBUG_PRINT("setup complete");
 }
@@ -58,10 +68,17 @@ void loop()
         // get sensor names and readings
         sensor_t sensor;
         sensors_event_t event;
+        String out = OSBH::timestamp() + ",";
         for (uint8_t i = 0; i < sensors.count(); ++i) {
             sensors.getSensor(i, &sensor);
             sensors.getEvent(i, &event);
-            DEBUG_PRINT(String(sensor.name) + " " + String(sensor.sensor_id) + ": " + String(event.data[0]));
+            out += String(sensor.name) + "," + String(sensor.sensor_id) + "," + String(event.data[0]) + ",";
+        }
+        DEBUG_PRINT(out);
+
+        // save data to SD card, if it's attached
+        if (SD_attached && !OSBH::write_line_to_sd(SD, out, LOGFILE_NAME)) {
+            DEBUG_PRINT("failed to write to SD card");
         }
 
         next_read = now + read_interval;

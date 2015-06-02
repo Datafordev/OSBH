@@ -5,9 +5,9 @@
 
 
 // 1: debug printing, 0: no debug printing
-#define DEBUG 1
+#define OSBH_DEBUG 1
 
-#if DEBUG
+#if OSBH_DEBUG
     #define DEBUG_PRINT(...) Serial.println(__VA_ARGS__);
 #else
     #define DEBUG_PRINT(...) do {} while (0)
@@ -21,6 +21,7 @@
 
 /* Configuration variables */
 #define IDEAL_READ_INTERVAL 5000 // may be adjusted upward to match sensors' min_delays
+#define LOGFILE_NAME "osbh.csv"
 
 
 #endif
