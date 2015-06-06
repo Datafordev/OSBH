@@ -59,6 +59,23 @@ bool Sensor_Array::getSensor(uint8_t index, sensor_t* sensor)
     return true;
 }
 
+void Sensor_Array::getSensorString(uint8_t index, char* buffer, size_t len)
+{
+    sensor_t sensor;
+    if (!getSensor(index, &sensor))
+        return;
+
+    snprintf(buffer, len, "%s_%li", sensor.name, sensor.sensor_id);
+}
+
+void Sensor_Array::getEventString(uint8_t index, char* buffer, size_t len)
+{
+    sensors_event_t event;
+    if (!getEvent(index, &event))
+        return;
+
+    snprintf(buffer, len, "%f", event.data[0]);
+}
 
 void Sensor_Array::setMinDelay()
 {

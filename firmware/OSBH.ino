@@ -3,14 +3,44 @@
 #include "Sensor_Array.h"
 #include "sd-card-library.h"
 
+using namespace OSBH;
+
 // disable wifi on boot
 SYSTEM_MODE(SEMI_AUTOMATIC);
 
 // global sensor array
-OSBH::Sensor_Array sensors(ONE_WIRE_PIN, DHT_PIN1, DHT_PIN2, DHT_TYPE);
+Sensor_Array sensors(ONE_WIRE_PIN, DHT_PIN1, DHT_PIN2, DHT_TYPE);
 
 // whether an SD card is attached
 bool SD_attached = true;
+
+// buffer for reading/writing strings. Using the spark/wiring String class
+// would be more convenient, but risks memory fragmentation.
+static const int IO_BUFFER_LEN = 36;
+char io_buffer[IO_BUFFER_LEN];
+
+
+/**************************************************************************/
+/*
+        Function:  write
+ */
+/**************************************************************************/
+void write(bool last_entry = false)
+{
+    // double-check that buffer is null-terminated
+    io_buffer[IO_BUFFER_LEN-1] = '\0';
+
+    // prep for writing as CSV
+    append_csv_delimiter(io_buffer, IO_BUFFER_LEN, last_entry);
+
+    // save data to SD card, if it's attached
+    if (SD_attached && !write_to_sd(SD, io_buffer, LOGFILE_NAME)) {
+        DEBUG_PRINTLN("failed to write to SD card");
+    }
+
+    // print to debug output
+    DEBUG_PRINT(io_buffer);
+}
 
 /**************************************************************************/
 /*
@@ -20,11 +50,11 @@ bool SD_attached = true;
 void setup() 
 {
     Serial.begin(9600);
-    DEBUG_PRINT("starting setup...");
+    DEBUG_PRINTLN("starting setup...");
 
     // attempt to connect to wifi
-    if (!OSBH::init_wifi()) {
-        DEBUG_PRINT("could not establish wifi connection");
+    if (!init_wifi()) {
+        DEBUG_PRINTLN("could not establish wifi connection");
     }
 
     // initialize sensors
@@ -32,11 +62,21 @@ void setup()
 
     // initialize SD card, if applicable
     if(SD_attached && !SD.begin()) {
-        DEBUG_PRINT("could not initialize SD card");
+        DEBUG_PRINTLN("could not initialize SD card");
         SD_attached = false;
     }
 
-    DEBUG_PRINT("setup complete");
+    // write header for timestamp column
+    strncpy(io_buffer, "Timestamp", IO_BUFFER_LEN);
+    write();
+
+    // write sensor names/IDs as CSV headers
+    for (uint8_t i = 0; i < sensors.count(); ++i) {
+        sensors.getSensorString(i, io_buffer, IO_BUFFER_LEN);
+        write(i == sensors.count() - 1);
+    }
+
+    DEBUG_PRINTLN("setup complete");
 }
 
 /**************************************************************************/
@@ -56,29 +96,23 @@ void loop()
 
     // time synchronization
     if (now > next_sync) {
-        DEBUG_PRINT("syncing time...");
-        OSBH::sync_time();
+        DEBUG_PRINTLN("syncing time...");
+        sync_time();
         next_sync = now + ONE_DAY_MILLIS;
     }
 
     // read and report sensor data
     if (now > next_read) {
-        DEBUG_PRINT("reading...");
+        DEBUG_PRINTLN("reading...");
 
-        // get sensor names and readings
-        sensor_t sensor;
-        sensors_event_t event;
-        String out = OSBH::timestamp() + ",";
+        // write timestamp
+        get_timestamp(io_buffer, IO_BUFFER_LEN, GMT_OFFSET);
+        write();
+
+        // get sensor readings
         for (uint8_t i = 0; i < sensors.count(); ++i) {
-            sensors.getSensor(i, &sensor);
-            sensors.getEvent(i, &event);
-            out += String(sensor.name) + "," + String(sensor.sensor_id) + "," + String(event.data[0]) + ",";
-        }
-        DEBUG_PRINT(out);
-
-        // save data to SD card, if it's attached
-        if (SD_attached && !OSBH::write_line_to_sd(SD, out, LOGFILE_NAME)) {
-            DEBUG_PRINT("failed to write to SD card");
+            sensors.getEventString(i, io_buffer, IO_BUFFER_LEN);
+            write(i == sensors.count() - 1);
         }
 
         next_read = now + read_interval;

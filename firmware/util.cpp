@@ -1,4 +1,5 @@
 #include "util.h"
+#include "application.h"
 #include "sd-card-library.h"
 
 
@@ -15,7 +16,7 @@ bool OSBH::init_wifi(uint16_t timeout_ms)
 }
 
 
-void OSBH::sync_time(uint16_t timeout_ms)
+bool OSBH::sync_time(uint16_t timeout_ms)
 {
     if (Spark.connected()) {
         Spark.syncTime();
@@ -27,21 +28,58 @@ void OSBH::sync_time(uint16_t timeout_ms)
             Spark.process();
             delay(100);
         }
+        return millis() < timeout;
     }
+    return false;
 }
 
-bool OSBH::write_line_to_sd(SDClass& sd, const String& line, const char* filename) {
+bool OSBH::write_to_sd(SDClass& sd, const char* line, const char* filename) 
+{
     if (File myFile = sd.open(filename, FILE_WRITE)) {
-        myFile.println(line);
+        myFile.print(line);
         myFile.close();
         return true;
     }
     return false;
 }
 
-String OSBH::timestamp()
+bool OSBH::get_timestamp(char* buffer, const int len, float gmt_offset)
 {
-    String str = Time.timeStr();
-    str.trim(); // remove timeStr's trailing \n
-    return str;
+    // return empty string if the GMT offset doesn't make sense
+    if (gmt_offset < GMT_MIN_OFFSET || gmt_offset > GMT_MAX_OFFSET) {
+        buffer[0] = '\0';
+        return false;
+    }
+
+    // get pointer to unix time string
+    time_t t = Time.now();
+    struct tm *calendar_time;
+    t += gmt_offset * ONE_HOUR_SECS;
+    calendar_time = localtime(&t);
+    char* time_str = asctime(calendar_time);
+
+    // copy into buffer
+    // (we need to make a copy because the pointed-to string will change on
+    // subsequent calls to asctime)
+    int timestamp_len = min(len, strlen(time_str));
+    strncpy(buffer, time_str, timestamp_len);
+
+    // drop trailing line break from time_str
+    buffer[timestamp_len - 1] = '\0';
+
+    return true;
+}
+
+void OSBH::append_csv_delimiter(char* buffer, const int len, bool last_entry)
+{
+    // delimiter is comma for non-final entries, line break for final ones
+    static const char final_suffix[3] = "\r\n";
+    static const char non_final_suffix[2] = ",";
+    const char* suffix = last_entry ? final_suffix : non_final_suffix;
+
+    // append delimiter to end of string in io buffer. This may overwrite
+    // buffer contents if there isn't enough space to add it at the end.
+    int suffix_len = strlen(suffix) + 1;
+    int string_len = min(strlen(buffer), len - suffix_len);
+    strncpy(buffer + string_len, suffix, suffix_len);
 }

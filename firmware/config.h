@@ -8,9 +8,11 @@
 #define OSBH_DEBUG 1
 
 #if OSBH_DEBUG
-    #define DEBUG_PRINT(...) Serial.println(__VA_ARGS__);
+    #define DEBUG_PRINT(...) Serial.print(__VA_ARGS__);
+    #define DEBUG_PRINTLN(...) Serial.println(__VA_ARGS__);
 #else
     #define DEBUG_PRINT(...) do {} while (0)
+    #define DEBUG_PRINTLN(...) do {} while (0)
 #endif
 
 /* Pin and sensor definitions */
@@ -22,6 +24,7 @@
 /* Configuration variables */
 #define IDEAL_READ_INTERVAL 5000 // may be adjusted upward to match sensors' min_delays
 #define LOGFILE_NAME "osbh.csv"
+#define GMT_OFFSET -8
 
 
 #endif

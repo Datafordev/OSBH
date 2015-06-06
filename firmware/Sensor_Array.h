@@ -23,6 +23,11 @@ public:
     bool getEvent(uint8_t index, sensors_event_t* event);
     bool getSensor(uint8_t index, sensor_t* sensor);
 
+    // Get sensor or event info from a sensor in the array, then place
+    // a string representation of it into the buffer argument
+    void getSensorString(uint8_t index, char* buffer, size_t len);
+    void getEventString(uint8_t index, char* buffer, size_t len);
+
     // The number of sensors in the array
     uint8_t count() const { return _sensor_cnt; }
 
@@ -30,6 +35,9 @@ public:
     uint32_t minDelay() const { return _min_delay; }
 
 private:
+    Sensor_Array(const Sensor_Array&) = delete;
+    Sensor_Array& operator=(const Sensor_Array&) = delete;
+
     // dht objects, each representing one temp and one humidity sensor
     static const uint8_t DHT_CNT = 2;
     DHT_Unified _dht[DHT_CNT];
