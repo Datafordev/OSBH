@@ -32,24 +32,29 @@ void DHT_Unified::begin() {
   _dht.begin();
 }
 
-void DHT_Unified::setName(sensor_t* sensor) {
+void DHT_Unified::setName(sensor_t* sensor, char* suffix) {
+  char* name = sensor->name;
+  const int size = sizeof(sensor->name) - 1;
   switch(_type) {
     case DHT11:
-      strncpy(sensor->name, "DHT11", sizeof(sensor->name) - 1);
+      strncpy(name, "DHT11", size);
       break;
     case DHT21:
-      strncpy(sensor->name, "DHT21", sizeof(sensor->name) - 1);
+      strncpy(name, "DHT21", size);
       break;
     case DHT22:
-      strncpy(sensor->name, "DHT22", sizeof(sensor->name) - 1);
+      strncpy(name, "DHT22", size);
       break;
     default:
       // TODO: Perhaps this should be an error?  However main DHT library doesn't enforce
       // restrictions on the sensor type value.  Pick a generic name for now.
-      strncpy(sensor->name, "DHT?", sizeof(sensor->name) - 1);
+      strncpy(name, "DHT?", size);
       break;
   }
-  sensor->name[sizeof(sensor->name)- 1] = 0;
+  if (suffix) {
+    strncpy(name + strlen(name), suffix, size);
+  }
+  name[size] = 0;
 }
 
 void DHT_Unified::setMinDelay(sensor_t* sensor) {
@@ -92,7 +97,7 @@ void DHT_Unified::Temperature::getSensor(sensor_t* sensor) {
   // Clear sensor definition.
   memset(sensor, 0, sizeof(sensor_t));
   // Set sensor name.
-  _parent->setName(sensor);
+  _parent->setName(sensor, "TEMP");
   // Set version and ID
   sensor->version         = DHT_SENSOR_VERSION;
   sensor->sensor_id       = _id;
@@ -146,7 +151,7 @@ void DHT_Unified::Humidity::getSensor(sensor_t* sensor) {
   // Clear sensor definition.
   memset(sensor, 0, sizeof(sensor_t));
   // Set sensor name.
-  _parent->setName(sensor);
+  _parent->setName(sensor, "HUM");
   // Set version and ID
   sensor->version         = DHT_SENSOR_VERSION;
   sensor->sensor_id       = _id;
