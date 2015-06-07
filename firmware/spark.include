@@ -34,4 +34,12 @@ libraries/SD/sd-card-library.h
 libraries/SD/sd-fat-util.h          
 libraries/SD/sd-volume.cpp
 
+libraries/audio/audio.h
+libraries/audio/audio.cpp
+libraries/audio/kiss_fft.h
+libraries/audio/_kiss_fft_guts.h
+libraries/audio/kiss_fft.c
+libraries/audio/kiss_fftr.h
+libraries/audio/kiss_fftr.c
+
 OSBH.ino

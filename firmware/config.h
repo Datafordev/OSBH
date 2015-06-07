@@ -21,6 +21,11 @@
 #define DHT_PIN2       5         // Pin for external DHT sensor.
 #define DHT_TYPE       DHT22     // DHT 22 (AM2302)
 
+/* Audio analysis parameters */
+int MICROPHONE = 10;        // A0 on spark Core
+int FFT_SIZE = 128;         //FFT Bucket Size (32,64,128,256 - higher means more frequency resolution)
+int SAMPLEDELAY = 600;      //Delay for sampling in microseconds f = 1/t*10^6
+
 /* Configuration variables */
 #define IDEAL_READ_INTERVAL 5000 // may be adjusted upward to match sensors' min_delays
 #define LOGFILE_NAME "osbh.csv"

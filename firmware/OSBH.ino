@@ -2,6 +2,7 @@
 #include "util.h"
 #include "Sensor_Array.h"
 #include "sd-card-library.h"
+#include "audio.h"
 
 using namespace OSBH;
 
@@ -60,6 +61,9 @@ void setup()
     // initialize sensors
     sensors.begin();
 
+    // reserve memory for FFT (audio analysis)
+    FFTinit();
+
     // initialize SD card, if applicable
     if(SD_attached && !SD.begin()) {
         DEBUG_PRINTLN("could not initialize SD card");
@@ -114,6 +118,10 @@ void loop()
             sensors.getEventString(i, io_buffer, IO_BUFFER_LEN);
             write(i == sensors.count() - 1);
         }
+
+        //perform audio analysis
+        updateFFT();
+        printfrequencies();
 
         next_read = now + read_interval;
     }
