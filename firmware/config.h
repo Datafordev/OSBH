@@ -28,7 +28,11 @@ int SAMPLEDELAY = 600;      //Delay for sampling in microseconds f = 1/t*10^6
 
 /* Configuration variables */
 #define IDEAL_READ_INTERVAL 5000 // may be adjusted upward to match sensors' min_delays
+
+/* Output variables */
 #define LOGFILE_NAME "osbh.csv"
+#define DELIMITER ","
+#define LINE_END "\n"
 #define GMT_OFFSET -8
 
 

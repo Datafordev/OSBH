@@ -32,7 +32,7 @@ void DHT_Unified::begin() {
   _dht.begin();
 }
 
-void DHT_Unified::setName(sensor_t* sensor, char* suffix) {
+void DHT_Unified::setName(sensor_t* sensor, char const* suffix) {
   char* name = sensor->name;
   const int size = sizeof(sensor->name) - 1;
   switch(_type) {

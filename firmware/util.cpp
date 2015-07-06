@@ -36,14 +36,14 @@ bool OSBH::sync_time(uint16_t timeout_ms)
 bool OSBH::write_to_sd(SDClass& sd, const char* line, const char* filename) 
 {
     if (File myFile = sd.open(filename, FILE_WRITE)) {
-        myFile.print(line);
+        bool success = (myFile.print(line) == strlen(line));
         myFile.close();
-        return true;
+        return success;
     }
     return false;
 }
 
-bool OSBH::get_timestamp(char* buffer, const int len, float gmt_offset)
+bool OSBH::get_timestamp(char* buffer, const int size, float gmt_offset)
 {
     // return empty string if the GMT offset doesn't make sense
     if (gmt_offset < GMT_MIN_OFFSET || gmt_offset > GMT_MAX_OFFSET) {
@@ -52,16 +52,14 @@ bool OSBH::get_timestamp(char* buffer, const int len, float gmt_offset)
     }
 
     // get pointer to unix time string
-    time_t t = Time.now();
-    struct tm *calendar_time;
-    t += gmt_offset * ONE_HOUR_SECS;
-    calendar_time = localtime(&t);
+    time_t t = Time.now() + (time_t)(gmt_offset * ONE_HOUR_SECS);
+    struct tm *calendar_time = localtime(&t);
     char* time_str = asctime(calendar_time);
 
     // copy into buffer
     // (we need to make a copy because the pointed-to string will change on
     // subsequent calls to asctime)
-    int timestamp_len = min(len, strlen(time_str));
+    int timestamp_len = min(size, strlen(time_str));
     strncpy(buffer, time_str, timestamp_len);
 
     // drop trailing line break from time_str
@@ -70,16 +68,14 @@ bool OSBH::get_timestamp(char* buffer, const int len, float gmt_offset)
     return true;
 }
 
-void OSBH::append_csv_delimiter(char* buffer, const int len, bool last_entry)
+void OSBH::append_suffix(char* buffer, const int size, const char* suffix)
 {
-    // delimiter is comma for non-final entries, line break for final ones
-    static const char final_suffix[3] = "\r\n";
-    static const char non_final_suffix[2] = ",";
-    const char* suffix = last_entry ? final_suffix : non_final_suffix;
+    int suffix_len = strlen(suffix) + 1; // include space for null terminator
 
-    // append delimiter to end of string in io buffer. This may overwrite
-    // buffer contents if there isn't enough space to add it at the end.
-    int suffix_len = strlen(suffix) + 1;
-    int string_len = min(strlen(buffer), len - suffix_len);
-    strncpy(buffer + string_len, suffix, suffix_len);
+    // if the buffer is too small to contain the suffix, bail
+    if (suffix_len > size) return;
+
+    // copy the suffix as close to the end of the string as possible
+    int suffix_start_pos = min(strlen(buffer), size - suffix_len);
+    strncpy(buffer + suffix_start_pos, suffix, suffix_len);
 }

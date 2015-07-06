@@ -26,13 +26,17 @@ char io_buffer[IO_BUFFER_LEN];
         Function:  write
  */
 /**************************************************************************/
+
+// writes the contents of io_buffer to all the currently active output destinations.
+// last_entry indicates whether the contents of the buffer fall at the end of a
+// line of sensor data.
 void write(bool last_entry = false)
 {
     // double-check that buffer is null-terminated
     io_buffer[IO_BUFFER_LEN-1] = '\0';
 
     // prep for writing as CSV
-    append_csv_delimiter(io_buffer, IO_BUFFER_LEN, last_entry);
+    append_suffix(io_buffer, IO_BUFFER_LEN, (last_entry ? LINE_END : DELIMITER));
 
     // save data to SD card, if it's attached
     if (SD_attached && !write_to_sd(SD, io_buffer, LOGFILE_NAME)) {
