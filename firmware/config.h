@@ -20,6 +20,7 @@
 #define DHT_PIN1       4         // Pin for internal DHT sensor.
 #define DHT_PIN2       5         // Pin for external DHT sensor.
 #define DHT_TYPE       DHT22     // DHT 22 (AM2302)
+#define SD_CD_PIN      A6
 
 /* Audio analysis parameters */
 int MICROPHONE = 10;        // A0 on spark Core

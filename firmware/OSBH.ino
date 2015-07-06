@@ -12,18 +12,18 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 // global sensor array
 Sensor_Array sensors(ONE_WIRE_PIN, DHT_PIN1, DHT_PIN2, DHT_TYPE);
 
-// whether an SD card is attached
-bool SD_attached = true;
+// whether there's an SD card present in the socket
+enum SD_State { SD_REMOVED, SD_READY, SD_UNPREPARED };
+SD_State sd_state = SD_REMOVED;
 
 // buffer for reading/writing strings. Using the spark/wiring String class
 // would be more convenient, but risks memory fragmentation.
 static const int IO_BUFFER_LEN = 36;
 char io_buffer[IO_BUFFER_LEN];
 
-
 /**************************************************************************/
 /*
-        Function:  write
+        Utility functions
  */
 /**************************************************************************/
 
@@ -38,13 +38,26 @@ void write(bool last_entry = false)
     // prep for writing as CSV
     append_suffix(io_buffer, IO_BUFFER_LEN, (last_entry ? LINE_END : DELIMITER));
 
-    // save data to SD card, if it's attached
-    if (SD_attached && !write_to_sd(SD, io_buffer, LOGFILE_NAME)) {
-        DEBUG_PRINTLN("failed to write to SD card");
-    }
+    // save data to SD card, if it's ready
+    if (sd_state == SD_READY && !write_to_sd(SD, io_buffer, LOGFILE_NAME)) {
+        DEBUG_PRINTLN("could not write to SD card");
+        sd_state = SD_UNPREPARED; // attempt to re-initialize later
+    } 
 
     // print to debug output
     DEBUG_PRINT(io_buffer);
+}
+
+// interrupt handler for SD card
+void update_sd_state()
+{
+    if (!digitalRead(SD_CD_PIN)) {
+        // card is absent
+        sd_state = SD_REMOVED;
+    } else if (sd_state == SD_REMOVED) {
+        // card is present, but was previously removed, so requires initialization
+        sd_state = SD_UNPREPARED;
+    }
 }
 
 /**************************************************************************/
@@ -68,11 +81,10 @@ void setup()
     // reserve memory for FFT (audio analysis)
     FFTinit();
 
-    // initialize SD card, if applicable
-    if(SD_attached && !SD.begin()) {
-        DEBUG_PRINTLN("could not initialize SD card");
-        SD_attached = false;
-    }
+    // attach interrupt on SD card-detect pin to catch inserts/removes
+    pinMode(SD_CD_PIN, INPUT_PULLUP);
+    attachInterrupt(SD_CD_PIN, update_sd_state, CHANGE);
+    update_sd_state(); // set initial state
 
     // write header for timestamp column
     strncpy(io_buffer, "Timestamp", IO_BUFFER_LEN);
@@ -107,6 +119,12 @@ void loop()
         DEBUG_PRINTLN("syncing time...");
         sync_time();
         next_sync = now + ONE_DAY_MILLIS;
+    }
+
+    // initialize SD card if necessary
+    if (sd_state == SD_UNPREPARED) {
+        SD.begin();
+        sd_state = SD_READY;
     }
 
     // read and report sensor data
