@@ -20,6 +20,7 @@
 #define DHT_PIN1       4         // Pin for internal DHT sensor.
 #define DHT_PIN2       5         // Pin for external DHT sensor.
 #define DHT_TYPE       DHT22     // DHT 22 (AM2302)
+#define SD_CD_PIN      A6
 
 /* Audio analysis parameters */
 int MICROPHONE = 10;        // A0 on spark Core
@@ -28,7 +29,11 @@ int SAMPLEDELAY = 600;      //Delay for sampling in microseconds f = 1/t*10^6
 
 /* Configuration variables */
 #define IDEAL_READ_INTERVAL 5000 // may be adjusted upward to match sensors' min_delays
+
+/* Output variables */
 #define LOGFILE_NAME "osbh.csv"
+#define DELIMITER ","
+#define LINE_END "\n"
 #define GMT_OFFSET -8
 
 

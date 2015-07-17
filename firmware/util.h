@@ -22,7 +22,7 @@ class SDClass;
 namespace OSBH {
 
 /* Utility functions */
-    
+
 bool init_wifi(uint16_t timeout_ms = 10000);
 
 // return value may not be reliable indicator of success/failure
@@ -34,12 +34,12 @@ bool sync_time(uint16_t timeout_ms = 1000);
 bool write_to_sd(SDClass& sd, const char* line, const char* filename);
 
 // clears buffer and returns false if the GMT offset is out of range
-bool get_timestamp(char* buffer, const int len, float gmt_offset = 0.);
+bool get_timestamp(char* buffer, const int size, float gmt_offset = 0.);
 
-// appends either a comma or a line break, depending on whether last_entry is true.
-// will overwrite the buffer contents with the delimiter if there isn't room to append
-// it on the end.
-void append_csv_delimiter(char* buffer, const int len, bool last_entry = false);
+// appends a suffix to the buffer. assumes buffer contains a null-terminated
+// string. may overwrite the end of that string if there isn't room in the
+// buffer to append it at the end.
+void append_suffix(char* buffer, const int size, const char* suffix);
 
 }
 

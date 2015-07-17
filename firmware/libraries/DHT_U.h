@@ -72,7 +72,7 @@ private:
   Temperature _temp;
   Humidity _humidity;
 
-  void setName(sensor_t* sensor, char* suffix = NULL); // optional suffix is passed in by child classes
+  void setName(sensor_t* sensor, char const* suffix = NULL); // optional suffix is passed in by child classes
   void setMinDelay(sensor_t* sensor);
 
 };
