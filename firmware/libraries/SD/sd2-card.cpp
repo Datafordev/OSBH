@@ -20,7 +20,6 @@
 
 #include "application.h"
 #include "sd2-card.h"
-#include "fast_pin_core.h"
 
 //#include "spark_wiring_spi.h"
 //#include "spark_wiring_usbserial.h"

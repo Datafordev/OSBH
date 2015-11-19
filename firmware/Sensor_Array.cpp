@@ -1,5 +1,4 @@
 #include "Sensor_Array.h"
-#include "application.h"    // this dependency can be removed when workaround in getEventString is removed
 
 using namespace OSBH;
 
@@ -75,14 +74,7 @@ void Sensor_Array::getEventString(uint8_t index, char* buffer, size_t len)
     if (!getEvent(index, &event))
         return;
 
-    // workaround for %f not working in Particle Photon beta firmware. This should
-    // be removed once the Particle team adds it back in, which they state will happen
-    // in their 0.4.5 release in the first week of September 2015.
-    #if (PLATFORM_ID == 6)
-        snprintf(buffer, len, "%s", String(event.data[0]).c_str());
-    #else
-        snprintf(buffer, len, "%f", event.data[0]);
-    #endif
+    snprintf(buffer, len, "%f", event.data[0]);
 }
 
 void Sensor_Array::setMinDelay()

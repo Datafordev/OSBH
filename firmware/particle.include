@@ -6,8 +6,6 @@ util.cpp
 Sensor_Array.h
 Sensor_Array.cpp
 
-libraries/fast_pin_core.h
-
 libraries/Adafruit_Sensor.h
 
 libraries/DHT.h
