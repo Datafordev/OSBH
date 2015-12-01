@@ -32,6 +32,7 @@ int SAMPLEDELAY = 600;      //Delay for sampling in microseconds f = 1/t*10^6
 
 /* Output variables */
 #define LOGFILE_NAME "osbh.csv"
+#define LOGFILE_NAME_AUDIO "audio.csv"
 #define DELIMITER ","
 #define LINE_END "\n"
 #define GMT_OFFSET -8

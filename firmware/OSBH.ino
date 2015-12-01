@@ -48,6 +48,38 @@ void write(bool last_entry = false)
     DEBUG_PRINT(io_buffer);
 }
 
+// output audio data to seperate audio file
+void audio_write()
+{
+	get_timestamp(io_buffer, IO_BUFFER_LEN, GMT_OFFSET);
+	// null-termination
+	io_buffer[IO_BUFFER_LEN-1] = '\0';
+	// append end-delimiter
+	append_suffix(io_buffer, IO_BUFFER_LEN, LINE_END );
+	// write to SD
+	if (sd_state == SD_READY && !write_to_sd(SD, io_buffer, LOGFILE_NAME_AUDIO)) {
+        DEBUG_PRINTLN("failed to write to SD card");
+        sd_state = SD_UNPREPARED; // attempt to re-initialize later
+    }
+	updateFFT();
+	for(int i=0; i < FFT_SIZE/2+2; i++) {
+        csv_audio_output(io_buffer, IO_BUFFER_LEN, i );      
+        if( strcmp( io_buffer, "") != 0 )  { 
+			// double-check that buffer is null-terminated
+			io_buffer[IO_BUFFER_LEN-1] = '\0';
+			// save data to SD card, if it's attached
+			if (sd_state == SD_READY && !write_to_sd(SD, io_buffer, LOGFILE_NAME_AUDIO)) {
+				DEBUG_PRINTLN("failed to write to SD card");
+				sd_state = SD_UNPREPARED; // attempt to re-initialize later
+			}
+
+			// print to debug output
+			  DEBUG_PRINT(io_buffer);
+			
+        }
+	}
+}
+
 // interrupt handler for SD card
 void update_sd_state()
 {
@@ -70,7 +102,7 @@ void setup()
     Serial.begin(9600);
     DEBUG_PRINTLN("starting setup...");
 
-    // attempt to connect to wifi
+   // attempt to connect to wifi
     if (!init_wifi()) {
         DEBUG_PRINTLN("could not establish wifi connection");
     }
@@ -143,7 +175,8 @@ void loop()
 
         //perform audio analysis
         updateFFT();
-        printfrequencies();
+        audio_write();
+
 
         next_read = now + read_interval;
     }

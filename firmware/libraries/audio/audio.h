@@ -27,4 +27,6 @@ void updateFFT();
 
 void printfrequencies();
 
+void csv_audio_output(char *buffer, int length , int i);
+
 #endif
