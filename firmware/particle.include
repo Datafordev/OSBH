@@ -6,6 +6,9 @@ util.cpp
 Sensor_Array.h
 Sensor_Array.cpp
 
+libraries/MQTT.h
+libraries/MQTT.cpp
+
 libraries/Adafruit_Sensor.h
 
 libraries/DHT.h

@@ -6,13 +6,15 @@
 bool OSBH::init_wifi(uint16_t timeout_ms)
 {
     WiFi.on();
+    //WiFi.connect();
     Spark.connect();
     uint32_t timeout = millis() + timeout_ms;
     while (!Spark.connected() && millis() < timeout) {
         Spark.process();
         delay(100);
-    }
+    } 
     return Spark.connected();
+    //return WiFi.ready();
 }
 
 

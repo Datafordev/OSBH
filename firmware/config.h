@@ -20,10 +20,11 @@
 #define DHT_PIN1       4         // Pin for internal DHT sensor.
 #define DHT_PIN2       5         // Pin for external DHT sensor.
 #define DHT_TYPE       DHT22     // DHT 22 (AM2302)
-#define SD_CD_PIN      A6
+#define SD_CD_PIN_IN   A6
+#define SD_CD_PIN_OUT  A7
 
 /* Audio analysis parameters */
-int MICROPHONE = 10;        // A0 on spark Core
+int MICROPHONE = 10;        // A0 on spark Core/Photon
 int FFT_SIZE = 128;         //FFT Bucket Size (32,64,128,256 - higher means more frequency resolution)
 int SAMPLEDELAY = 600;      //Delay for sampling in microseconds f = 1/t*10^6
 
@@ -35,7 +36,19 @@ int SAMPLEDELAY = 600;      //Delay for sampling in microseconds f = 1/t*10^6
 #define LOGFILE_NAME_AUDIO "audio.csv"
 #define DELIMITER ","
 #define LINE_END "\n"
-#define GMT_OFFSET -8
+#define GMT_OFFSET 1
+
+/* Database Connection */
+#define MQTTSERVER "io.adafruit.com"
+#define MQTTSERVERPORT 1883
+#define MQTTID "sparkclient"
+#define MQTTUSER "ronjac"
+#define MQTTPSW "92227a87656a7029f7758fc1283abe79320a8673"
+
+/* MQTT Topics */
+char* MQTTBASETOPIC = "ronjac/feeds";
+char* MQTTAUDIOTOPIC = "/audio";
+char* mqtttopics[] = {"/DHT1temp", "/DHT1hum", "/DHT2temp", "/DHT2hum", "/Temp1", "/Temp2"};
 
 
 #endif

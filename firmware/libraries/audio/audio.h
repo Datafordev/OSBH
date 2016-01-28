@@ -14,7 +14,7 @@ January 2015
 
 #include "kiss_fftr.h"
 
-extern int  MICROPHONE  ; // A1 on spark Core
+extern int  MICROPHONE  ; // A1 on particle Core/Photon
 extern int  FFT_SIZE  ; //FFT Bucket Size (32,64,128,256 - higher means more frequency resolution)
 extern int  SAMPLEDELAY ; //Delay for sampling in microseconds f = 1/t*10^6
 
@@ -28,5 +28,7 @@ void updateFFT();
 void printfrequencies();
 
 void csv_audio_output(char *buffer, int length , int i);
+
+void mqtt_audio_output(char *buffer, int length , int i);
 
 #endif
