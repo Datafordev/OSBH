@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.4.0">
+<eagle version="6.6.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -4344,6 +4344,39 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 </deviceset>
 </devicesets>
 </library>
+<library name="supply1">
+<description>&lt;b&gt;Supply Symbols&lt;/b&gt;&lt;p&gt;
+ GND, VCC, 0V, +5V, -5V, etc.&lt;p&gt;
+ Please keep in mind, that these devices are necessary for the
+ automatic wiring of the supply signals.&lt;p&gt;
+ The pin name defined in the symbol is identical to the net which is to be wired automatically.&lt;p&gt;
+ In this library the device names are the same as the pin names of the symbols, therefore the correct signal names appear next to the supply symbols in the schematic.&lt;p&gt;
+ &lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
+<packages>
+</packages>
+<symbols>
+<symbol name="GND">
+<wire x1="-1.905" y1="0" x2="1.905" y2="0" width="0.254" layer="94"/>
+<text x="-2.54" y="-2.54" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="GND" x="0" y="2.54" visible="off" length="short" direction="sup" rot="R270"/>
+</symbol>
+</symbols>
+<devicesets>
+<deviceset name="GND" prefix="GND">
+<description>&lt;b&gt;SUPPLY SYMBOL&lt;/b&gt;</description>
+<gates>
+<gate name="1" symbol="GND" x="0" y="0"/>
+</gates>
+<devices>
+<device name="">
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+</devicesets>
+</library>
 </libraries>
 <attributes>
 </attributes>
@@ -4371,7 +4404,6 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 <part name="DHT03_INT" library="SparkFun" deviceset="M03" device="LOCK"/>
 <part name="DHT03_EXT" library="SparkFun" deviceset="M03" device="LOCK"/>
 <part name="ADC" library="SparkFun-Connectors" deviceset="M04" device="LOCK_LONGPADS"/>
-<part name="R6" library="SparkFun" deviceset="RESISTOR" device="1206" value="0"/>
 <part name="AUDIO" library="SparkFun" deviceset="M03" device="LOCK"/>
 <part name="U$2" library="calculator_lib" deviceset="MICROSD-HIROSE" device=""/>
 <part name="C1" library="SparkFun" deviceset="CAP" device="1206"/>
@@ -4381,6 +4413,7 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 <part name="GND3" library="SparkFun" deviceset="GND" device=""/>
 <part name="D1" library="diode" deviceset="DIODE-" device="SOD323-W"/>
 <part name="G1" library="Simplex-Battery" deviceset="HU2032-LF" device=""/>
+<part name="GND1" library="supply1" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -4406,7 +4439,6 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 <instance part="DHT03_INT" gate="G$1" x="121.92" y="15.24" rot="R180"/>
 <instance part="DHT03_EXT" gate="G$1" x="121.92" y="35.56" rot="R180"/>
 <instance part="ADC" gate="G$1" x="58.42" y="-30.48" rot="R90"/>
-<instance part="R6" gate="G$1" x="93.98" y="33.02" rot="R180"/>
 <instance part="AUDIO" gate="G$1" x="-30.48" y="2.54"/>
 <instance part="U$2" gate="G$1" x="-48.26" y="17.78" rot="R180"/>
 <instance part="C1" gate="G$1" x="-12.7" y="48.26" rot="R90"/>
@@ -4416,6 +4448,7 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 <instance part="GND3" gate="1" x="63.5" y="55.88"/>
 <instance part="D1" gate="G$1" x="38.1" y="63.5" rot="R180"/>
 <instance part="G1" gate="BAT" x="48.26" y="63.5" rot="R180"/>
+<instance part="GND1" gate="1" x="101.6" y="10.16"/>
 </instances>
 <busses>
 </busses>
@@ -4432,9 +4465,11 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 <pinref part="JP2" gate="G$1" pin="4"/>
 </segment>
 <segment>
-<pinref part="R6" gate="G$1" pin="2"/>
 <wire x1="88.9" y1="33.02" x2="88.9" y2="30.48" width="0.1524" layer="91"/>
 <pinref part="GND2" gate="1" pin="GND"/>
+<pinref part="DHT03_EXT" gate="G$1" pin="3"/>
+<wire x1="114.3" y1="33.02" x2="88.9" y2="33.02" width="0.1524" layer="91"/>
+<label x="101.6" y="33.02" size="1.778" layer="95"/>
 </segment>
 <segment>
 <pinref part="ADC" gate="G$1" pin="4"/>
@@ -4447,6 +4482,7 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 <pinref part="DS18B20_INT" gate="G$1" pin="3"/>
 <wire x1="114.3" y1="-22.86" x2="101.6" y2="-22.86" width="0.1524" layer="91"/>
 <label x="101.6" y="-27.94" size="1.778" layer="95"/>
+<label x="104.14" y="-22.86" size="1.778" layer="95"/>
 </segment>
 <segment>
 <wire x1="101.6" y1="-5.08" x2="101.6" y2="-7.62" width="0.1524" layer="91"/>
@@ -4475,6 +4511,11 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 <wire x1="63.5" y1="63.5" x2="63.5" y2="58.42" width="0.1524" layer="91"/>
 <pinref part="G1" gate="BAT" pin="-"/>
 <wire x1="53.34" y1="63.5" x2="63.5" y2="63.5" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="DHT03_INT" gate="G$1" pin="3"/>
+<wire x1="114.3" y1="12.7" x2="101.6" y2="12.7" width="0.1524" layer="91"/>
+<pinref part="GND1" gate="1" pin="GND"/>
 </segment>
 </net>
 <net name="RAW" class="1">
@@ -4668,19 +4709,6 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 <label x="48.26" y="10.16" size="1.778" layer="95"/>
 <pinref part="JP2" gate="G$1" pin="9"/>
 <wire x1="68.58" y1="10.16" x2="40.64" y2="10.16" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="GNDR" class="0">
-<segment>
-<pinref part="DHT03_EXT" gate="G$1" pin="3"/>
-<wire x1="114.3" y1="33.02" x2="99.06" y2="33.02" width="0.1524" layer="91"/>
-<pinref part="R6" gate="G$1" pin="1"/>
-<label x="101.6" y="33.02" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="DHT03_INT" gate="G$1" pin="3"/>
-<wire x1="114.3" y1="12.7" x2="93.98" y2="12.7" width="0.1524" layer="91"/>
-<label x="101.6" y="12.7" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="D4" class="0">
